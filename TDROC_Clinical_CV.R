@@ -20,24 +20,12 @@ library(birk)
 library(bnnSurvival)
 library(CoxBoost)
 
-setwd("/Users/ani/Dropbox/2018Radiomics/RcodeFINAL/")
-features <- read.csv("data431_surv.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+features <- read.csv("clincial.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 set.seed(123)
 cutoff <- 365*3
 ts <- seq(1, cutoff, 5)
 nk <- 10
-
-### Get PatientIDs and patients with bad masks
-#patients = feature.dat$PatientID
-#bad.patients = c("LUNG1-034", "LUNG1-040", "LUNG1-044", "LUNG1-068",
-#                 "LUNG1-083", "LUNG1-084", "LUNG1-094", "LUNG1-096",
-#                 "LUNG1-110", "LUNG1-137", "LUNG1-143", "LUNG1-144",
-#                 "LUNG1-146", "LUNG1-164", "LUNG1-166", "LUNG1-167",
-#                 "LUNG1-191", "LUNG1-192", "LUNG1-208", "LUNG1-212",
-#                 "LUNG1-214", "LUNG1-222", "LUNG1-227")
-#bad.ind.ft = which(feature.dat$PatientID %in% bad.patients)
-#feature.dat.new = feature.dat.new[-bad.ind.ft,]
 
 features <- features %>% 
   filter(!is.na(F1)) %>%
