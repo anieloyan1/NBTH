@@ -9,9 +9,9 @@ library(furrr)
 library(dplyr) # for the pipe
 plan(multiprocess)
 
-source('~/Dropbox/2020Radiomics/RcodeMay/FeatureExtractionCode/MRF/mde_mrf_3D.R')
-temp = readPNG("~/Dropbox/2020Radiomics/RcodeMay/Simulations/nkar.png")
-out.dir = "~/Dropbox/2020Radiomics/RcodeMay/Simulations/ClusterComparison"
+source('~/mde_mrf_3D.R')
+temp = readPNG("~/nkar.png")
+out.dir = "~/ClusterComparison"
 
 ### Generate the data
 Y1 = round(temp[10:254,10:254,1]*10)
