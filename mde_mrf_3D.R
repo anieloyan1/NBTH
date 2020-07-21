@@ -19,21 +19,14 @@ rao = function(int){
   return(t(freq)%*%dist.mat%*%freq)
 }
 
-# Norm function in an Euclidean space of any dimension
+# Euclidean norm
 norm.euclidean=function(x){ return(norm(matrix(x,ncol=1),type = "F")) }
-# Distance function in an Euclidean space of any dimension
+# Distance function 
 dist.euclidean=function(x,y){ return(norm.euclidean(x-y)) }
-## Subsection 1.2, Kernels for minimization in a semi-normed space of Sobolev type
 
+
+### This function computes the weights in the GMM 
 weight.seq.mrf=function(x.obs, coord, beta = 1, coord.neigh, mu, sig, epsilon=0.001, max.iter=1000){ 
-  
-  # "x.obs" is the data set of interest. 
-  #         There are n observations, and each observation is a D-dimensional point.
-  #         x.obs is a n-by-D matrix.
-  # "mu" is a vector of the knots in a mixture density estimation.
-  # "sigma" is the bandwidth of this density estimation.
-  # "epsilon" is a predetermined tolerance of the Euclidean distance between thetas in two consecutive steps.
-  # "max.iter" is a predetermined upper bound of the number of steps in this iteration.
   
   n.D=dim(x.obs)                  
   n=n.D[1]
@@ -44,18 +37,18 @@ weight.seq.mrf=function(x.obs, coord, beta = 1, coord.neigh, mu, sig, epsilon=0.
   A=matrix(NA,ncol = N,nrow = n)
   for(j in 1:N){
     A.prepare=function(x){ return(ker(x,mu[j,],sig))  }
-    A[,j]=apply(x.obs,1,A.prepare)   # A[i,j] is \f_{j,K} (x_i).
+    A[,j]=apply(x.obs,1,A.prepare) 
   }
   
-  theta.old=matrix(1/N, n, N)               # The initial guess for weights, say \theta_j's.
-  abs.diff=10*epsilon                # Absolute value of the difference between "theta.new" and "theta.old".
-  count=0                            # Counting the number of steps in this iteration.
-  lambda.hat.old=rep(1,n)      # The initial guess of the Lagrangian multipliers
+  theta.old=matrix(1/N, n, N)            
+  abs.diff=10*epsilon                
+  count=0                      
+  lambda.hat.old=rep(1,n)      
   
-  while((abs.diff>epsilon)&(count<=max.iter)){   # The iteration for computing desired theta's
+  while((abs.diff>epsilon)&(count<=max.iter)){   
     
-    W=A*theta.old              # \theta_j^{(k)} \times \psi_\sigma(x_i-mu_j)
-    W=W/apply(W,1,sum)               # W[i,j] is the posterior probability of Z=j|X=x_i, say w_{i,j}(\theta.old).
+    W=A*theta.old            
+    W=W/apply(W,1,sum)       
     Gjv = matrix(0, n, N)
     
     ### Calculate the G_j,v
@@ -77,29 +70,23 @@ weight.seq.mrf=function(x.obs, coord, beta = 1, coord.neigh, mu, sig, epsilon=0.
     #### Update lambda.v
     lambda.hat.old = 1 + apply(Gjv,1,sum)
     
-    # We set the Lagrangian multipliers in the previous step 
-    # as the initial guess in this step.
     theta.new = (W + Gjv)/lambda.hat.old
-    abs.diff=dist.euclidean(theta.new,theta.old)                              # The Euclidean distance between the old and new theta vectors.
-    if(is.na(abs.diff)){ abs.diff=0; theta.new=theta.old }                    # It helps us avoid "NA trouble".
+    abs.diff=dist.euclidean(theta.new,theta.old)                        
+    if(is.na(abs.diff)){ abs.diff=0; theta.new=theta.old }                 
     
-    theta.old=pmax(theta.new,0)      # Set the new theta as the old theta for the next iteration step.   
-    theta.old=pmin(theta.old,1)      # pmax() and pmin() guarantee that theta_j's are in [0,1]. 
+    theta.old=pmax(theta.new,0)     
+    theta.old=pmin(theta.old,1)    
     count=count+1
   }
   
-  theta.hat=pmax(theta.new,0)        # The iteration has stopped.  
-  theta.hat=pmin(theta.hat,1)        # Again, we guarantee that theta_j's are in [0,1].
-  return(theta.hat)                  # It returns the estimation of weights \theta_j's.
+  theta.hat=pmax(theta.new,0)      
+  theta.hat=pmin(theta.hat,1)      
+  return(theta.hat)                
 }
 
 
 
-
-# A function that returns the mean vector, weight vector and sigmaN for a given sample from the true density.
-# The starting value of the sample size is given by the user as well as the corresponding standard deviation.
-# The estimated density can be computed by using the results of this function in a mixture density.
-
+### A function for choosing the N and estimated GMM weights 
 est.func=function(x.obs, coord, beta = 1, coord.neigh, N0=4, sig, max.knots=100,alpha=0.05,mu=NULL){
   
   zalpha = qnorm(1-alpha/2)
@@ -130,7 +117,7 @@ est.func=function(x.obs, coord, beta = 1, coord.neigh, N0=4, sig, max.knots=100,
   
   st=1
   while((st==1)&(length(ind.temp)>0)){
-    # Add two means to the sequence at a time
+    # Add means to the sequence at a time
     if(length(ind.temp)>2){
       ind.mu = ind.temp[round(seq(1, length(ind.temp),l=min(4,length(ind.temp))))[c(2,3)]]
     }
