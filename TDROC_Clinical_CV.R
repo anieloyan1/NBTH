@@ -20,6 +20,7 @@ library(birk)
 library(bnnSurvival)
 library(CoxBoost)
 
+### Clinical data can be downloaded from https://wiki.cancerimagingarchive.net/display/Public/NSCLC-Radiomics
 features <- read.csv("clincial.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 set.seed(123)
